@@ -2,250 +2,188 @@
 session_start();
 require_once 'config.php';
 
-$issues = $DB->query("
-    SELECT id, title, year, price, slug, preview_filename
-    FROM issues
-    ORDER BY year DESC
+/**
+ * Fetch subjects which have at least 1 issue
+ */
+$subjects = $DB->query("
+    SELECT 
+        s.id,
+        s.name,
+        s.cover_image,
+        COUNT(i.id) AS issue_count
+    FROM subjects s
+    JOIN issues i ON i.subject_id = s.id
+    GROUP BY s.id
+    HAVING issue_count > 0
+    ORDER BY s.name ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
+
+/**
+ * Prepared statement to fetch FIRST 5 issues of a subject
+ */
+$issueStmt = $DB->prepare("
+    SELECT id, title
+    FROM issues
+    WHERE subject_id = ?
+    ORDER BY id ASC
+    LIMIT 5
+");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>The Continuum | All Issues</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 
 <style>
-/* ===== THEME ===== */
 :root {
-    --primary: #374785;
-    --primary-dark: #2c3768;
-    --bg-light: #f6f6f6;
+    --primary:#374785;
+    --primary-dark:#2c3768;
+    --bg:#f5f6fa;
 }
 
-/* ===== GLOBAL ===== */
 body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: var(--bg-light);
-    color: #111;
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:var(--bg);
 }
 
-a { text-decoration: none; }
+a { text-decoration:none; }
 
-/* ===== NAVBAR ===== */
 .navbar {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    background: var(--primary);
-    z-index: 1000;
+    position:fixed;
+    top:0;
+    width:100%;
+    background:var(--primary);
+    z-index:1000;
 }
 
 .nav-container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 14px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    max-width:1200px;
+    margin:auto;
+    padding:14px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
 .nav-brand img {
-    height: 40px;
-    margin-right: 10px;
+    height:38px;
+    margin-right:10px;
 }
 
 .nav-menu a {
-    color: #fff;
-    margin-left: 20px;
-    font-weight: 500;
+    color:#fff;
+    margin-left:20px;
+    font-weight:600;
 }
 
 .nav-menu a.active {
-    border-bottom: 2px solid #fff;
+    border-bottom:2px solid #fff;
 }
 
-/* ===== HERO ===== */
+/* HERO */
 .hero {
-    padding: 160px 20px 90px;
-    background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
-    color: #fff;
-    text-align: center;
+    padding:160px 20px 90px;
+    background:linear-gradient(to bottom,var(--primary),var(--primary-dark));
+    color:#fff;
+    text-align:center;
 }
 
-.hero-title {
-    font-size: 46px;
-    font-family: 'Playfair Display', serif;
+.hero h1 {
+    font-family:'Playfair Display',serif;
+    font-size:46px;
 }
 
-.hero-subtitle {
-    font-size: 18px;
-    opacity: 0.9;
-    margin-top: 10px;
+.hero p {
+    opacity:.9;
 }
 
-/* ===== CONTENT ===== */
-.about-section {
-    padding: 80px 20px;
-}
-
+/* GRID */
 .container {
-    max-width: 1200px;
-    margin: auto;
+    max-width:1200px;
+    margin:auto;
+    padding:80px 20px;
 }
 
-/* ===== GRID ===== */
-.issues-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 28px;
+.subject-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:30px;
 }
 
-/* ===== CARD ===== */
-.issue-card {
-    background: #fff;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,.08);
-    transition: all .3s ease;
-    position: relative;
+/* CARD */
+.subject-card {
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:.3s ease;
 }
 
-.issue-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 40px rgba(0,0,0,.12);
+.subject-card:hover {
+    transform:translateY(-6px);
+    box-shadow:0 20px 45px rgba(0,0,0,.12);
 }
 
-/* ===== PRICE BADGE ===== */
-.issue-status {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: var(--primary);
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 2;
+.subject-image {
+    height:260px;
+    background:#eee;
 }
 
-/* ===== IMAGE ===== */
-.issue-card-image {
-    height: 260px;
-    background: #eee;
-    overflow: hidden;
+.subject-image img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 
-.issue-card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform .4s ease;
+.subject-content {
+    padding:22px;
+    text-align:center;
 }
 
-.issue-card:hover img {
-    transform: scale(1.06);
+.subject-content h3 {
+    font-family:'Playfair Display',serif;
+    font-size:20px;
+    margin-bottom:16px;
+    text-transform:uppercase;
 }
 
-/* ===== CONTENT ===== */
-.issue-card-content {
-    padding: 20px;
-    text-align: center;
+/* ISSUE LIST */
+.issue-list {
+    list-style:none;
+    padding:0;
+    margin:0 0 18px;
 }
 
-.issue-card-content h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    margin-bottom: 16px;
-    color: #111;
+.issue-list li {
+    margin-bottom:8px;
 }
 
-/* ===== BUTTONS ===== */
-.issue-card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
+.issue-list a {
+    color:var(--primary);
+    font-weight:600;
 }
 
-.btn {
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-secondary {
-    background: #f1f1f1;
-    color: #333;
-}
-
-.btn-secondary:hover {
-    background: #e4e4e4;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-}
-
-/* ===== MODAL ===== */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.6);
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-}
-
-.modal-box {
-    background: #fff;
-    max-width: 420px;
-    margin: 12% auto;
-    padding: 32px;
-    border-radius: 18px;
-    text-align: center;
-    box-shadow: 0 25px 60px rgba(0,0,0,.25);
-}
-
-.modal-box h3 {
-    font-size: 22px;
-    color: var(--primary);
-}
-
-.modal-box p {
-    color: #555;
-    margin: 12px 0 24px;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    margin-top: 16px;
-    color: #777;
-    cursor: pointer;
+/* VIEW ALL */
+.view-all {
+    display:inline-block;
+    margin-top:10px;
+    color:var(--primary);
+    font-weight:700;
+    text-transform:uppercase;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+<!-- NAV -->
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-brand">
@@ -253,7 +191,7 @@ a { text-decoration: none; }
             <img src="images/continuum-logo-white.png">
         </div>
         <div class="nav-menu">
-            <a href="index.html">Home</a>
+            <a href="index.php">Home</a>
             <a href="reviewers.html">Editorial Board</a>
             <a href="all-issues.php" class="active">Issues</a>
         </div>
@@ -262,80 +200,52 @@ a { text-decoration: none; }
 
 <!-- HERO -->
 <section class="hero">
-    <h1 class="hero-title">All Published Issues</h1>
-    <p class="hero-subtitle">Explore peer-reviewed academic issues of The Continuum.</p>
+    <h1>All Published Issues</h1>
+    <p>Browse The Continuum by academic subject</p>
 </section>
 
-<!-- ISSUES -->
-<section class="about-section">
-<div class="container">
-<div class="issues-grid">
+<!-- SUBJECT GRID -->
+<section class="container">
+<div class="subject-grid">
 
-<?php foreach ($issues as $i): ?>
-<div class="issue-card" data-aos="fade-up">
-    <div class="issue-status">₹<?=number_format($i['price'],2)?></div>
+<?php foreach ($subjects as $s): ?>
+<?php
+    $issueStmt->execute([$s['id']]);
+    $issues = $issueStmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="subject-card">
 
-    <div class="issue-card-image">
-        <?php if($i['preview_filename']): ?>
-            <img src="manuscripts/previews/<?=esc($i['preview_filename'])?>">
-        <?php else: ?>
-            <img src="images/cover.png">
-        <?php endif; ?>
+    <!-- IMAGE -->
+    <div class="subject-image">
+        <img src="/uploads/subjects/<?= htmlspecialchars($s['cover_image']) ?>" alt="<?= htmlspecialchars($s['name']) ?>">
     </div>
 
-    <div class="issue-card-content">
-        <h3><?=esc($i['title'])?> (<?=esc($i['year'])?>)</h3>
+    <!-- CONTENT -->
+    <div class="subject-content">
+        <h3><?= htmlspecialchars($s['name']) ?></h3>
 
-        <div class="issue-card-actions">
-            <a href="issue.php?slug=<?=esc($i['slug'])?>" class="btn btn-secondary">
-                <i class="fas fa-eye"></i> Preview
-            </a>
+        <!-- FIRST 5 ISSUES -->
+        <ul class="issue-list">
+            <?php foreach ($issues as $i): ?>
+                <li>
+                    <a href="issue.php?id=<?= $i['id'] ?>">
+                        <?= htmlspecialchars($i['title']) ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
 
-            <button class="btn btn-primary" onclick="openPay(<?= $i['id'] ?>)">
-                <i class="fas fa-lock"></i> Full Access
-            </button>
-        </div>
+        <!-- VIEW ALL -->
+        <a class="view-all" href="subject.php?id=<?= $s['id'] ?>">
+            VIEW ALL <?= $s['issue_count'] ?> ISSUES
+        </a>
     </div>
+
 </div>
 <?php endforeach; ?>
 
 </div>
-</div>
 </section>
-
-<!-- PAYMENT MODAL -->
-<div id="payModal" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Secure Payment</h3>
-        <p>This is a demo payment gateway.</p>
-
-        <button class="btn btn-primary" style="width:100%" onclick="payNow()">
-            <i class="fas fa-lock"></i> Pay Now
-        </button>
-
-        <button class="modal-close" onclick="closePay()">Cancel</button>
-    </div>
-</div>
-
-<script>
-let selectedIssue = null;
-
-function openPay(id){
-    selectedIssue = id;
-    document.getElementById('payModal').style.display = 'block';
-}
-
-function closePay(){
-    document.getElementById('payModal').style.display = 'none';
-}
-
-function payNow(){
-    window.location = 'unlock.php?issue_id=' + selectedIssue;
-}
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script>AOS.init();</script>
 
 </body>
 </html>
