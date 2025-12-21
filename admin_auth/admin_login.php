@@ -3,21 +3,43 @@ require_once __DIR__ . '/../config.php';
 
 $err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
     $pw    = $_POST['password'] ?? '';
 
-    $stmt = $DB->query("SELECT * FROM admins LIMIT 1");
+    $stmt = $DB->prepare("SELECT id,name,password_hash FROM admins WHERE email=? LIMIT 1");
+    $stmt->execute([$email]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($admin && $email === $admin['email'] && password_verify($pw, $admin['password_hash'])) {
-        session_regenerate_id(true);
-        $_SESSION['admin'] = true;
-        $_SESSION['admin_name'] = $admin['name'];
+    if ($admin && password_verify($pw, $admin['password_hash'])) {
+
+        $token = bin2hex(random_bytes(32));
+
+        $hash = hash('sha256', $token);
+
+        $DB->prepare("
+            UPDATE admins 
+            SET auth_token_hash=?, auth_token_expires=DATE_ADD(NOW(), INTERVAL 7 DAY)
+            WHERE id=?
+        ")->execute([$hash, $admin['id']]);
+
+        setcookie(
+            'admin_auth',
+            $token,
+            [
+                'expires'  => time() + 604800,
+                'path'     => '/',
+                'secure'   => true,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]
+        );
+
         header("Location: admin_panel.php");
         exit;
-    } else {
-        $err = "Invalid email or password.";
     }
+
+    $err = "Invalid credentials";
 }
 ?>
 <!DOCTYPE html>

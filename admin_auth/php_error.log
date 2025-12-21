@@ -1,0 +1,5 @@
+[17-Dec-2025 05:44:39 UTC] PHP Fatal error:  Cannot redeclare esc() (previously declared in /usr/home/netsutra/public_html/journal.phindia.com/admin_auth/upload_issue.php:11) in /usr/home/netsutra/public_html/journal.phindia.com/config.php on line 66
+[17-Dec-2025 05:49:40 UTC] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'issue_title' in 'field list'
+[17-Dec-2025 05:49:59 UTC] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'issue_title' in 'field list'
+[17-Dec-2025 06:32:26 UTC] PHP Warning:  Undefined array key "volume" in /usr/home/netsutra/public_html/journal.phindia.com/admin_auth/upload_issue.php on line 23
+[17-Dec-2025 06:32:26 UTC] PHP Warning:  Undefined array key "volume" in /usr/home/netsutra/public_html/journal.phindia.com/admin_auth/upload_issue.php on line 23

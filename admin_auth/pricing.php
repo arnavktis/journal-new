@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/auth_check.php';
+
+/* AUTH */
+$ADMIN = require_admin($DB);
 
 $err=''; $msg='';
 

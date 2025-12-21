@@ -176,16 +176,19 @@ $adminBody = "<h3>New manuscript submission</h3>
 <p><b>Subject:</b> ".htmlspecialchars($input['subject'])."</p>
 <p><b>Article Synopsis:</b><br>{$syn}</p>";
 
+// UPDATED USER BODY
 $userBody = "<p>Dear ".htmlspecialchars($input['fullname']).",</p>
 <p>We have received your submission: <b>".htmlspecialchars($input['subject'])."</b>.</p>
-<p>We’ll review and get back to you.</p>
-<p>— The Continuum Editorial Team</p>";
+<p>Next step: please download, complete, and sign the attached <b>Copyright Transfer Agreement Form</b>.</p>
+<p>After completing the form, email the signed copy to <a href=\"mailto:thecontinuum@phindia.com\">thecontinuum@phindia.com</a>.</p>
+<p>If you have already submitted this form, you may ignore this request.</p>
+<p>&mdash; The Continuum Editorial Team</p>";
 
 // --- send admin (attach from memory) ---
 $adminSent = trySend(function(PHPMailer $m) use ($adminBody,$tmpPath,$orig){
   $m->addAddress('lalita@phindia.com','Admin');
   $m->addAddress('thecontinuum@phindia.com','Continuum');
- $m->addAddress('marketing@phindia.com','Admin'); 
+  $m->addAddress('marketing@phindia.com','Admin');
   $m->isHTML(true);
   $m->Subject = 'New Submission Received';
   $m->Body    = $adminBody;
@@ -194,12 +197,20 @@ $adminSent = trySend(function(PHPMailer $m) use ($adminBody,$tmpPath,$orig){
   }
 });
 
-// --- send user ---
+// --- send user (attach Copyright_Transfer_Agreement_Form.pdf) ---
 $userSent = trySend(function(PHPMailer $m) use ($input,$userBody){
   $m->addAddress($input['email'] ?? '', $input['fullname'] ?? '');
   $m->isHTML(true);
-  $m->Subject = 'Submission Acknowledgement';
+  $m->Subject = 'Submission Acknowledgement & Copyright Transfer Form';
   $m->Body    = $userBody;
+
+  // attach static copyright transfer form
+  $pdfPath = __DIR__ . '/Copyright_Transfer_Agreement_Form.pdf';
+  if (is_readable($pdfPath)) {
+    $m->addAttachment($pdfPath, 'Copyright_Transfer_Agreement_Form.pdf');
+  } else {
+    logline('Copyright transfer form not readable: '.$pdfPath);
+  }
 });
 
 // --- response ---

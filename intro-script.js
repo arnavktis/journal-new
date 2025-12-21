@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScrolling();
     initNavbarEffects();
     initMobileMenu();
+    initDropdownMenu();
     initStatsCounter();
     initContactForm(); // wired to process_submission.php
     initSubmissionModal(); // modal for submission success
@@ -118,6 +119,38 @@ function initMobileMenu() {
                 navMenu.classList.remove('active');
                 mobileToggle.querySelector('i').className = 'fas fa-bars';
                 document.body.style.overflow = '';
+            }
+        });
+    }
+}
+
+function initDropdownMenu() {
+    const dropdownBtn = document.getElementById('authorsDropdownBtn');
+    const dropdownMenu = document.getElementById('authorsDropdownMenu');
+    
+    if (dropdownBtn && dropdownMenu) {
+        // Toggle dropdown on button click
+        dropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownBtn.classList.toggle('active');
+            dropdownMenu.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking on a menu item
+        const dropdownItems = dropdownMenu.querySelectorAll('.nav-dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', () => {
+                dropdownBtn.classList.remove('active');
+                dropdownMenu.classList.remove('active');
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownBtn.classList.remove('active');
+                dropdownMenu.classList.remove('active');
             }
         });
     }
