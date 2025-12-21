@@ -1,40 +1,47 @@
 <?php
-require_once __DIR__ . '/../config.php';
-
+require '../config.php';
 $ADMIN = require_admin($DB);
 
-/* Filters */
-$filter_subject = trim($_GET['subject'] ?? '');
-$filter_issue = intval($_GET['issue_id'] ?? 0);
+/* FILTERS */
+$filter_subject = intval($_GET['subject_id'] ?? 0);
+$filter_issue   = intval($_GET['issue_id'] ?? 0);
 
-/* Fetch subjects + issues */
-$subjects = $DB->query("SELECT DISTINCT subject FROM articles ORDER BY subject")->fetchAll(PDO::FETCH_COLUMN);
-$issues = $DB->query("SELECT id, subject, year, volume, issue_no FROM issues ORDER BY year DESC")->fetchAll(PDO::FETCH_ASSOC);
+/* Fetch subjects */
+$subjects = $DB->query("SELECT id, name FROM subjects ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-/* Query */
+/* Fetch issues (with subject name) */
+$issues = $DB->query("
+    SELECT issues.id, issues.title, subjects.name AS subject_name
+    FROM issues
+    JOIN subjects ON subjects.id = issues.subject_id
+    ORDER BY issues.id DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+/* Build query */
 $sql = "
-    SELECT a.*, 
-        (SELECT GROUP_CONCAT(name ORDER BY aa.order_no SEPARATOR ', ') 
-            FROM article_authors aa 
-            JOIN authors au ON au.id = aa.author_id 
-            WHERE aa.article_id = a.id
-        ) AS authors,
-        (SELECT CONCAT(subject,' - ',year,' - Vol ',volume,' Issue ',issue_no)
-            FROM issues WHERE id = a.issue_id
-        ) AS issue_name
-    FROM articles a
-    WHERE 1
+SELECT 
+    a.id,
+    a.title,
+    a.abstract,
+    au.name AS author_name,
+    s.name AS subject_name,
+    i.title AS issue_title
+FROM articles a
+JOIN authors au ON au.id = a.author_id
+JOIN issues i  ON i.id = a.issue_id
+JOIN subjects s ON s.id = i.subject_id
+WHERE 1
 ";
 
 $params = [];
 
-if ($filter_subject !== '') {
-    $sql .= " AND a.subject = ? ";
+if ($filter_subject > 0) {
+    $sql .= " AND s.id = ? ";
     $params[] = $filter_subject;
 }
 
 if ($filter_issue > 0) {
-    $sql .= " AND a.issue_id = ? ";
+    $sql .= " AND i.id = ? ";
     $params[] = $filter_issue;
 }
 
@@ -49,27 +56,30 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
 <meta charset="UTF-8">
 <title>Manage Articles</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-body { font-family:'Poppins'; background:#f8fafc; padding:40px; }
+body { font-family:Poppins,sans-serif; background:#f8fafc; padding:40px; }
 .container { max-width:1100px; margin:auto; }
-h1 { font-size:32px; margin-bottom:20px; }
+h1 { margin-bottom:20px; }
 .filter-row { display:flex; gap:16px; margin-bottom:24px; }
 select {
-    padding:12px; border-radius:8px; border:1px solid #ccc; 
-    background:white; font-size:14px;
+    padding:12px; border-radius:8px;
+    border:1px solid #ccc; background:white;
 }
 .table {
-    width:100%; border-collapse:collapse; background:white; 
-    border-radius:12px; overflow:hidden; box-shadow:0 4px 8px rgba(0,0,0,0.05);
+    width:100%; border-collapse:collapse;
+    background:white; border-radius:12px;
+    overflow:hidden; box-shadow:0 4px 8px rgba(0,0,0,0.05);
 }
 .table th, .table td {
-    padding:14px; border-bottom:1px solid #eee; font-size:14px;
+    padding:14px; border-bottom:1px solid #eee;
 }
-.table th { background:#003366; color:white; text-align:left; }
+.table th {
+    background:#002147; color:white; text-align:left;
+}
 .actions a {
-    padding:6px 12px; border-radius:6px; text-decoration:none; font-size:13px; color:white;
+    padding:6px 12px; border-radius:6px;
+    color:white; text-decoration:none; font-size:13px;
 }
 .btn-edit { background:#3b82f6; }
 .btn-delete { background:#ef4444; }
@@ -77,17 +87,18 @@ select {
 
 </head>
 <body>
-<div class="container">
 
+<div class="container">
 <h1>Manage Articles</h1>
 
 <!-- FILTERS -->
 <form method="GET" class="filter-row">
-    <select name="subject">
+    <select name="subject_id">
         <option value="">All Subjects</option>
         <?php foreach($subjects as $s): ?>
-            <option value="<?=esc($s)?>" <?= $filter_subject === $s ? 'selected':'' ?>>
-                <?=esc($s)?>
+            <option value="<?=$s['id']?>"
+                <?=$filter_subject == $s['id'] ? 'selected':''?>>
+                <?=esc($s['name'])?>
             </option>
         <?php endforeach; ?>
     </select>
@@ -95,50 +106,51 @@ select {
     <select name="issue_id">
         <option value="">All Issues</option>
         <?php foreach($issues as $i): ?>
-            <option value="<?=$i['id']?>" <?= $filter_issue == $i['id'] ? 'selected':'' ?>>
-                <?=esc($i['subject'])?> — <?=$i['year']?> — Vol <?=$i['volume']?> Issue <?=$i['issue_no']?>
+            <option value="<?=$i['id']?>"
+                <?=$filter_issue == $i['id'] ? 'selected':''?>>
+                <?=esc($i['subject_name'])?> — <?=esc($i['title'])?>
             </option>
         <?php endforeach; ?>
     </select>
 
-    <button style="padding:12px 18px; background:#004080; color:white; border:none; border-radius:8px;">Apply</button>
+    <button style="
+        padding:12px 18px; background:#003366;
+        color:white;border:none;border-radius:8px;">
+        Apply
+    </button>
 </form>
 
 <!-- TABLE -->
 <table class="table">
 <tr>
     <th>Title</th>
-    <th>Authors</th>
+    <th>Author</th>
     <th>Subject</th>
     <th>Issue</th>
-    <th>File</th>
     <th>Actions</th>
 </tr>
 
 <?php if(!$articles): ?>
-<tr><td colspan="6" style="text-align:center; padding:20px;">No articles found.</td></tr>
+<tr><td colspan="5" style="padding:20px;text-align:center;">No articles found.</td></tr>
 <?php endif; ?>
 
 <?php foreach($articles as $a): ?>
 <tr>
     <td><?=esc($a['title'])?></td>
-    <td><?=esc($a['authors'] ?: "—")?></td>
-    <td><?=esc($a['subject'])?></td>
-    <td><?=esc($a['issue_name'])?></td>
-
-    <td>
-        <a href="<?=PUBLIC_BASE_URL.'/articles/'.$a['filename']?>" target="_blank">Download</a>
-    </td>
+    <td><?=esc($a['author_name'])?></td>
+    <td><?=esc($a['subject_name'])?></td>
+    <td><?=esc($a['issue_title'])?></td>
 
     <td class="actions">
         <a class="btn-edit" href="edit_article.php?id=<?=$a['id']?>">Edit</a>
-        <a class="btn-delete" href="delete_article.php?id=<?=$a['id']?>" onclick="return confirm('Delete article?')">Delete</a>
+        <a class="btn-delete" href="delete_article.php?id=<?=$a['id']?>"
+           onclick="return confirm('Delete article?')"
+        >Delete</a>
     </td>
 </tr>
 <?php endforeach; ?>
 
 </table>
-
 </div>
 </body>
 </html>

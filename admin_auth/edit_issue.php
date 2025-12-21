@@ -1,192 +1,183 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/php_error.log');
-
-require_once __DIR__ . '/../config.php';
+require '../config.php';
 $ADMIN = require_admin($DB);
-
 
 $id = intval($_GET['id'] ?? 0);
 if (!$id) die("Invalid issue ID.");
 
+// fetch issue
 $stmt = $DB->prepare("SELECT * FROM issues WHERE id=?");
 $stmt->execute([$id]);
 $issue = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$issue) die("Issue not found.");
 
-$err = $ok = '';
+// fetch subjects for dropdown
+$subjects = $DB->query("SELECT id, name FROM subjects ORDER BY name ASC")->fetchAll();
+
+$err = $ok = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $subject = trim($_POST['subject'] ?? '');
-    $year    = intval($_POST['year'] ?? 0);
-    $title   = trim($_POST['title'] ?? '');
-    $issue_no= isset($_POST['issue_no']) && $_POST['issue_no'] !== ''
-        ? intval($_POST['issue_no'])
-        : null;
-    $price   = floatval($_POST['price'] ?? 0);
+    $subject_id   = intval($_POST['subject_id']);
+    $title        = trim($_POST['title']);
+    $price        = floatval($_POST['price']);
+    $published_at = trim($_POST['published_at']);
 
-    if (!$subject || !$year || !$title || $price <= 0) {
-        $err = "Required fields missing.";
+    if (!$subject_id || !$title || $price <= 0 || !$published_at) {
+        $err = "All fields required.";
     }
 
-    $preview_filename = $issue['preview_filename'];
+    // file replace logic
+    $issue_filename = $issue['issue_file'];
 
-    if (!$err && !empty($_FILES['preview']['name'])) {
-        $pv = $_FILES['preview'];
-        $mime = mime_content_type($pv['tmp_name']);
+    if (!$err && $_FILES['issue_file']['size'] > 0) {
+        $file = $_FILES['issue_file'];
 
-        if (!in_array($mime, ['image/png','image/jpeg'])) {
-            $err = "Preview must be PNG or JPG.";
+        $mime = mime_content_type($file['tmp_name']);
+        if ($mime !== "application/pdf") {
+            $err = "Issue file must be a PDF.";
         } else {
-            $ext = pathinfo($pv['name'], PATHINFO_EXTENSION);
-            $preview_filename = 'preview_' . bin2hex(random_bytes(4)) . '.' . $ext;
-            $dir = dirname(__DIR__).'/manuscripts/previews';
-            if (!is_dir($dir)) mkdir($dir,0755,true);
-            move_uploaded_file($pv['tmp_name'], "$dir/$preview_filename");
+            $newName = uniqid() . ".pdf";
+
+            $dir = __DIR__ . "/../uploads/issues/";
+            if (!is_dir($dir)) mkdir($dir, 0777, true);
+
+            $path = $dir . $newName;
+
+            if (!move_uploaded_file($file['tmp_name'], $path)) {
+                $err = "Failed to upload PDF.";
+            } else {
+                $issue_filename = $newName;
+            }
         }
     }
 
     if (!$err) {
         $stmt = $DB->prepare("
-            UPDATE issues SET
-                subject=?,
-                year=?,
-                title=?,
-                issue_no=?,
-                price=?,
-                preview_filename=?
+            UPDATE issues SET 
+                subject_id=?, 
+                title=?, 
+                price=?, 
+                issue_file=?, 
+                published_at=?
             WHERE id=?
         ");
-
         $stmt->execute([
-            $subject,
-            $year,
+            $subject_id,
             $title,
-            $issue_no,
             $price,
-            $preview_filename,
+            $issue_filename,
+            $published_at,
             $id
         ]);
 
-        $ok = "Issue updated successfully.";
+        $ok = "Issue updated successfully!";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
 <title>Edit Issue</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <style>
-body {
-    font-family:Poppins, Arial;
-    background:#f6f7fb;
-    padding:40px;
+:root {
+    --primary-blue:#002147;--secondary-blue:#003366;
+    --dark:#1f2937;--border:#e5e7eb;--bg:#f8fafc;
 }
-.box {
-    max-width:800px;
-    margin:auto;
-    background:#fff;
-    padding:40px;
-    border-radius:14px;
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:var(--bg);color:var(--dark)}
+.dashboard-container{display:flex;min-height:100vh}
+
+.sidebar{
+    width:280px;background:linear-gradient(180deg,var(--primary-blue),var(--secondary-blue));
+    color:#fff;position:fixed;height:100vh;overflow-y:auto;padding-bottom:20px;
 }
-h1 { margin-bottom:20px; }
-label {
-    font-weight:600;
-    display:block;
-    margin-top:18px;
+.sidebar-header{padding:32px 24px;border-bottom:1px solid rgba(255,255,255,.1)}
+.admin-info{padding:20px 24px;background:rgba(255,255,255,.1)}
+.nav-menu a{display:flex;gap:16px;padding:14px 24px;color:#fff;text-decoration:none}
+.nav-menu a:hover{background:rgba(255,255,255,.1)}
+
+.main-content{margin-left:280px;flex:1;padding:40px}
+
+.box{
+    background:#fff;padding:40px;border-radius:16px;border:1px solid var(--border);
+    max-width:700px;
 }
-input {
-    width:100%;
-    padding:12px;
-    margin-top:6px;
-    border-radius:8px;
-    border:1px solid #ccc;
+label{font-weight:600;display:block;margin-top:18px;}
+input, select{
+    width:100%;padding:12px;margin-top:6px;border-radius:8px;border:1px solid var(--border);
 }
-button {
-    margin-top:30px;
-    width:100%;
-    padding:14px;
-    background:#002147;
-    color:#fff;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
+button{
+    margin-top:30px;width:100%;padding:14px;background:var(--primary-blue);
+    color:#fff;border:none;border-radius:10px;font-weight:600;
 }
-.err {
-    background:#fee;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-    color:#b00;
-}
-.ok {
-    background:#d1fae5;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-    color:#065f46;
-}
-.back {
-    display:inline-block;
-    margin-bottom:20px;
-    text-decoration:none;
-    font-weight:600;
-    color:#5d85b2;
-}
-.preview-link {
-    font-size:14px;
-    margin-top:6px;
-    display:block;
-}
+.err{background:#fee;padding:12px;border-radius:8px;color:#b00;margin-bottom:20px;}
+.ok{background:#d1fae5;padding:12px;border-radius:8px;color:#065f46;margin-bottom:20px;}
 </style>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
+<div class="dashboard-container">
 
-<div class="box">
+<?php include 'sidebar.php'; ?>
 
-<a href="admin_panel.php" class="back">← Back to Dashboard</a>
+<main class="main-content">
 
-<h1>Edit Issue</h1>
+    <h2>Edit Issue</h2>
 
-<?php if ($err): ?><div class="err"><?=esc($err)?></div><?php endif; ?>
-<?php if ($ok): ?><div class="ok"><?=esc($ok)?></div><?php endif; ?>
+    <div class="box">
 
-<form method="post" enctype="multipart/form-data">
+        <?php if ($err): ?>
+            <div class="err"><?= esc($err) ?></div>
+        <?php endif; ?>
 
-<label>Subject *</label>
-<input type="text" name="subject" value="<?=esc($issue['subject'])?>" required>
+        <?php if ($ok): ?>
+            <div class="ok"><?= esc($ok) ?></div>
+        <?php endif; ?>
 
-<label>Year *</label>
-<input type="number" name="year" value="<?=$issue['year']?>" required>
+        <form method="POST" enctype="multipart/form-data">
 
-<label>Issue Title *</label>
-<input type="text" name="title" value="<?=esc($issue['title'])?>" required>
+            <label>Subject *</label>
+            <select name="subject_id" required>
+                <?php foreach($subjects as $s): ?>
+                    <option value="<?= $s['id'] ?>"
+                        <?= $s['id'] == $issue['subject_id'] ? 'selected' : '' ?>>
+                        <?= esc($s['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
-<label>Issue Number (optional)</label>
-<input type="number" name="issue_no" value="<?=esc($issue['issue_no'])?>">
+            <label>Issue Title *</label>
+            <input type="text" name="title" value="<?= esc($issue['title']) ?>" required>
 
-<label>Price *</label>
-<input type="text" name="price" value="<?=esc($issue['price'])?>" required>
+            <label>Price *</label>
+            <input type="number" step="0.01" name="price" value="<?= esc($issue['price']) ?>" required>
 
-<label>Preview Image (optional)</label>
-<?php if ($issue['preview_filename']): ?>
-<a class="preview-link" href="<?=PUBLIC_BASE_URL.'/previews/'.$issue['preview_filename']?>" target="_blank">
-View current preview
-</a>
-<?php endif; ?>
-<input type="file" name="preview" accept="image/png,image/jpeg">
+            <label>Published At *</label>
+            <input type="date" name="published_at" value="<?= esc($issue['published_at']) ?>" required>
 
-<button>Save Changes</button>
+            <label>Current Issue PDF</label>
+            <?php if ($issue['issue_file']): ?>
+                <a href="../uploads/issues/<?= esc($issue['issue_file']) ?>" 
+                   target="_blank" style="display:block;margin-top:6px;">
+                   View Existing File
+                </a>
+            <?php endif; ?>
 
-</form>
+            <label>Replace Issue PDF (optional)</label>
+            <input type="file" name="issue_file" accept="application/pdf">
 
+            <button>Save Changes</button>
+
+        </form>
+    </div>
+
+</main>
 </div>
-
 </body>
 </html>

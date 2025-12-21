@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/../config.php';
+require '../config.php';
 
-/* AUTH */
 $ADMIN = require_admin($DB);
 
 $id = intval($_GET['id'] ?? 0);
 if (!$id) {
-    die("Invalid ID.");
+    die("Invalid article ID.");
 }
 
 /* Fetch article */
@@ -18,17 +17,21 @@ if (!$article) {
     die("Article not found.");
 }
 
-/* Delete file */
-$filePath = dirname(__DIR__) . '/manuscripts/articles/' . $article['filename'];
-if (is_file($filePath)) {
-    unlink($filePath);
+/* Delete file from disk */
+if (!empty($article['filename'])) {
+    $filePath = dirname(__DIR__) . "/uploads/articles/" . $article['filename'];
+    if (is_file($filePath)) {
+        unlink($filePath);
+    }
 }
 
 /* Delete author mappings */
-$DB->prepare("DELETE FROM article_authors WHERE article_id=?")->execute([$id]);
+$DB->prepare("DELETE FROM article_authors WHERE article_id=?")
+   ->execute([$id]);
 
-/* Delete article */
-$DB->prepare("DELETE FROM articles WHERE id=?")->execute([$id]);
+/* Delete article record */
+$DB->prepare("DELETE FROM articles WHERE id=?")
+   ->execute([$id]);
 
 header("Location: articles_list.php?deleted=1");
 exit;

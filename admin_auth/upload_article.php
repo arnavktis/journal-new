@@ -1,125 +1,64 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-require_once __DIR__ . '/../config.php';
-
-/* AUTH */
+require '../config.php';
 $ADMIN = require_admin($DB);
 
-$err = $ok = '';
+$err = $ok = "";
 
 /* Fetch issues */
 $issues = $DB->query("
-    SELECT id, subject, year, title
+    SELECT issues.id, issues.title, subjects.name AS subject_name
     FROM issues
-    ORDER BY year DESC, id DESC
+    JOIN subjects ON subjects.id = issues.subject_id
+    ORDER BY issues.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-function make_slug($s) {
-    $s = strtolower(trim($s));
-    $s = iconv('utf-8','ascii//TRANSLIT',$s);
-    $s = preg_replace('/[^a-z0-9]+/', '-', $s);
-    return trim($s, '-');
-}
+/* Fetch authors */
+$authors_list = $DB->query("SELECT id, name FROM authors ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $issue_id = intval($_POST['issue_id'] ?? 0);
-    $title    = trim($_POST['title'] ?? '');
-    $summary  = trim($_POST['summary'] ?? '');
+    $issue_id = intval($_POST['issue_id']);
+    $title    = trim($_POST['title']);
+    $abstract = trim($_POST['abstract']);
     $authors  = $_POST['authors'] ?? [];
 
-    if (!$issue_id || !$title) {
-        $err = "Issue and Article Title are required.";
+    if (!$issue_id || !$title || !$abstract || empty($authors)) {
+        $err = "All fields including authors are required.";
     }
 
-    /* Fetch subject */
-    if (!$err) {
-        $stmt = $DB->prepare("SELECT subject FROM issues WHERE id=?");
-        $stmt->execute([$issue_id]);
-        $issue = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$issue) {
-            $err = "Invalid issue selected.";
-        } else {
-            $subject = $issue['subject'];
-        }
-    }
-
-    if (!$err && empty($_FILES['article']['name'])) {
-        $err = "Article file is required.";
-    }
-
-    /* Upload file */
-    if (!$err) {
-        $f = $_FILES['article'];
-
-        if ($f['error'] !== UPLOAD_ERR_OK) {
-            $err = "File upload failed.";
-        } else {
-            $ext = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
-            $slug = make_slug($title);
-
-            $filename = "article_" . date('Ymd_His') . "_" . bin2hex(random_bytes(4)) . ".$ext";
-
-            $dir = dirname(__DIR__)."/manuscripts/articles";
-            if (!is_dir($dir)) mkdir($dir,0755,true);
-
-            if (!move_uploaded_file($f['tmp_name'], "$dir/$filename")) {
-                $err = "Failed to save article file.";
-            }
-        }
-    }
-
-    /* Insert article */
     if (!$err) {
 
-        $uploaded_by = $ADMIN['name'];
-
-        $stmt = $DB->prepare("
-            INSERT INTO articles
-            (issue_id, subject, title, slug, summary, filename, original_name, uploaded_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-
-        $stmt->execute([
-            $issue_id,
-            $subject,
-            $title,
-            $slug,
-            $summary,
-            $filename,
-            $_FILES['article']['name'],
-            $uploaded_by
-        ]);
+        // Insert article
+        $stmt = $DB->prepare("INSERT INTO articles (issue_id, title, abstract) VALUES (?, ?, ?)");
+        $stmt->execute([$issue_id, $title, $abstract]);
 
         $article_id = $DB->lastInsertId();
 
-        /* Authors */
-        foreach ($authors as $i => $name) {
-            $name = trim($name);
-            if ($name === '') continue;
+        // Insert authors mapping
+        $order = 1;
 
-            $stmtA = $DB->prepare("SELECT id FROM authors WHERE name=? LIMIT 1");
-            $stmtA->execute([$name]);
-            $a = $stmtA->fetch(PDO::FETCH_ASSOC);
+        foreach ($authors as $a) {
 
-            if ($a) {
-                $author_id = $a['id'];
-            } else {
-                $stmtA = $DB->prepare("INSERT INTO authors (name) VALUES (?)");
-                $stmtA->execute([$name]);
+            // Select dropdown = numeric = existing author
+            if (ctype_digit($a)) {
+                $author_id = intval($a);
+
+            } else { 
+                // Input text = new author name
+                $name = trim($a);
+                if ($name == "") continue;
+
+                $DB->prepare("INSERT INTO authors(name) VALUES(?)")->execute([$name]);
                 $author_id = $DB->lastInsertId();
             }
 
-            $stmtAA = $DB->prepare("
+            $DB->prepare("
                 INSERT INTO article_authors (article_id, author_id, order_no)
                 VALUES (?, ?, ?)
-            ");
-            $stmtAA->execute([$article_id, $author_id, $i + 1]);
+            ")->execute([$article_id, $author_id, $order++]);
         }
 
-        $ok = "Article uploaded successfully.";
+        $ok = "Article uploaded successfully!";
     }
 }
 ?>
@@ -127,91 +66,247 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 <head>
 <title>Upload Article</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-body { font-family:Poppins; background:#f8fafc; padding:40px; }
-.container { max-width:900px; margin:auto; }
-.card { background:#fff; padding:40px; border-radius:16px; }
-.form-group { margin-bottom:22px; }
-input, select, textarea {
-    width:100%; padding:14px;
-    border-radius:10px; border:1px solid #e5e7eb;
+:root {
+    --primary-blue:#002147;
+    --secondary-blue:#003366;
+    --dark:#1f2937;
+    --border:#e5e7eb;
+    --bg:#f8fafc;
 }
-textarea { height:140px; resize:none; }
-button {
-    width:100%; padding:16px;
-    background:#003366; color:#fff;
-    border:none; border-radius:12px;
+
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    font-family:Poppins,sans-serif;
+    background:var(--bg);
+    color:var(--dark);
+}
+
+/* LAYOUT */
+.dashboard-container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:280px;
+    background:linear-gradient(180deg,var(--primary-blue),var(--secondary-blue));
+    color:#fff;
+    position:fixed;
+    height:100vh;
+    overflow-y:auto;
+}
+
+.sidebar-header{
+    padding:32px 24px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+}
+
+.admin-info{
+    padding:20px 24px;
+    background:rgba(255,255,255,.1);
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.nav-menu a{
+    display:flex;
+    padding:14px 24px;
+    gap:12px;
+    font-size:15px;
+    text-decoration:none;
+    color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+.nav-menu a:hover{
+    background:rgba(255,255,255,.1);
+}
+
+/* MAIN */
+.main-content{
+    margin-left:280px;
+    flex:1;
+    padding:40px;
+}
+
+h2{
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+/* CARD */
+.card{
+    background:#fff;
+    padding:30px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    max-width:750px;
+}
+
+/* FORM CONTROLS */
+label{
+    display:block;
+    margin-top:18px;
+    font-weight:600;
+    font-size:15px;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    border-radius:8px;
+    background:white;
+    border:1px solid var(--border);
+    font-size:14px;
+}
+
+textarea{
+    height:150px;
+    resize:none;
+}
+
+/* BUTTON */
+button{
+    margin-top:30px;
+    width:100%;
+    padding:14px;
+    background:var(--primary-blue);
+    color:white;
+    border:none;
+    border-radius:10px;
     font-size:16px;
+    font-weight:600;
+    cursor:pointer;
 }
-.alert { padding:14px; border-radius:10px; margin-bottom:20px; }
-.err { background:#fee; color:#b00; }
-.ok { background:#d1fae5; color:#065f46; }
-.add-author { margin-top:10px; cursor:pointer; color:#003366; font-weight:600; }
-.remove { color:#c00; cursor:pointer; margin-left:10px; }
-.back { display:inline-block; margin-bottom:20px; font-weight:600; color:#5d85b2; text-decoration:none; }
+button:hover{
+    background:var(--secondary-blue);
+}
+
+/* ALERTS */
+.err{
+    background:#fee;
+    padding:12px;
+    border-radius:8px;
+    color:#b00;
+    margin-bottom:20px;
+    border:1px solid #f5c2c7;
+}
+.ok{
+    background:#d1fae5;
+    padding:12px;
+    border-radius:8px;
+    color:#065f46;
+    margin-bottom:20px;
+    border:1px solid #a7f3d0;
+}
+
+/* AUTHOR CONTROLS */
+.add-author{
+    margin-top:12px;
+    cursor:pointer;
+    color:var(--primary-blue);
+    font-weight:600;
+    font-size:14px;
+}
+
+.remove{
+    color:#c00;
+    cursor:pointer;
+    margin-left:10px;
+    font-size:13px;
+}
+
 </style>
+
+
 </head>
 <body>
+<div class="dashboard-container">
 
-<div class="container">
-<a href="admin_panel.php" class="back">← Back to Dashboard</a>
+<?php include 'sidebar.php'; ?>
 
-<h1>Upload Article</h1>
+<main class="main-content">
 
-<?php if($err): ?><div class="alert err"><?=esc($err)?></div><?php endif; ?>
-<?php if($ok): ?><div class="alert ok"><?=esc($ok)?></div><?php endif; ?>
+<h2>Upload Article</h2>
 
-<form method="post" enctype="multipart/form-data">
 <div class="card">
 
-<div class="form-group">
-<label>Assign to Issue *</label>
-<select name="issue_id" required>
-<option value="">Select Issue</option>
-<?php foreach($issues as $i): ?>
-<option value="<?=$i['id']?>">
-<?=esc($i['subject'])?> — <?=esc($i['year'])?> — <?=esc($i['title'])?>
-</option>
-<?php endforeach; ?>
-</select>
-</div>
+<?php if($err): ?><div class="err"><?=esc($err)?></div><?php endif; ?>
+<?php if($ok): ?><div class="ok"><?=esc($ok)?></div><?php endif; ?>
 
-<div class="form-group">
-<label>Article Title *</label>
-<input type="text" name="title" required>
-</div>
+<form method="POST">
 
-<div class="form-group">
-<label>Summary / Abstract *</label>
-<textarea name="summary"></textarea>
-</div>
+    <!-- ISSUE -->
+    <label>Issue *</label>
+    <select name="issue_id" required>
+        <option value="">Select Issue</option>
+        <?php foreach($issues as $i): ?>
+            <option value="<?= $i['id'] ?>">
+                <?= esc($i['subject_name']) ?> — <?= esc($i['title']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
 
-<div class="form-group">
-<label>Authors *</label>
-<div id="authors">
-<input type="text" name="authors[]" placeholder="Author name" required>
-</div>
-<div class="add-author" onclick="addAuthor()">+ Add Author</div>
-</div>
+    <!-- TITLE -->
+    <label>Article Title *</label>
+    <input type="text" name="title" required>
 
-<div class="form-group">
-<label>Article File *</label>
-<input type="file" name="article" required>
-</div>
+    <!-- ABSTRACT -->
+    <label>Abstract *</label>
+    <textarea name="abstract" required></textarea>
 
-<button>Upload Article</button>
+    <!-- AUTHORS -->
+    <label>Authors *</label>
 
-</div>
+    <div id="authors">
+        <div>
+
+            <select name="authors[]" style="width:80%;display:inline-block;">
+                <option value="">Select existing author</option>
+                <?php foreach($authors_list as $a): ?>
+                    <option value="<?= $a['id'] ?>"><?= esc($a['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <input type="text" name="authors[]" placeholder="Or add new author" 
+                   style="width:80%;margin-top:10px;">
+        </div>
+    </div>
+
+    <div class="add-author" onclick="addAuthor()">+ Add More Authors</div>
+
+    <!-- SUBMIT -->
+    <button>Upload Article</button>
+
 </form>
+
+</div>
+</main>
 </div>
 
 <script>
 function addAuthor() {
     const d = document.createElement('div');
-    d.innerHTML = `<input type="text" name="authors[]" placeholder="Author name">
-                   <span class="remove" onclick="this.parentElement.remove()">Remove</span>`;
-    document.getElementById('authors').appendChild(d);
+    d.innerHTML = `
+        <select name="authors[]" style="width:80%;display:inline-block;">
+            <option value="">Select existing author</option>
+            <?php foreach($authors_list as $a): ?>
+                <option value="<?= $a['id'] ?>"><?= esc($a['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <input type="text" name="authors[]" placeholder="Or add new author" 
+               style="width:80%;margin-top:10px;">
+
+        <span class="remove" onclick="this.parentElement.remove()">Remove</span>
+    `;
+    document.getElementById("authors").appendChild(d);
 }
 </script>
 

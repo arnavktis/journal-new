@@ -1,0 +1,1775 @@
+<?php 
+$currentPage = 'reviewers';
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Reviewers | The Continuum - PHI Learning</title>
+    <link rel="stylesheet" href="intro-styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Charlevoix+Pro:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #002147;
+            --secondary-color: #003366;
+            --light-blue: hsl(206, 53%, 91%);
+            --text-color: #1f2937;
+            --muted-color: #6b7280;
+            --light-bg: #f8fafc;
+            --accent-color: #D4AF37;
+        }
+
+        /* Section and Layout Fixes */
+        .section {
+            padding: 30px 0;
+            background: var(--light-blue);
+        }
+
+        .section-header {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: var(--muted-color);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Container alignment */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Reviewers Grid Styles */
+        .reviewers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .reviewer-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 33, 71, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reviewer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .reviewer-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 33, 71, 0.15);
+        }
+
+        /* Editorial Board specific styles */
+        .editorial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 33, 71, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editorial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .editorial-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 33, 71, 0.15);
+        }
+
+        /* Reviewers Grid specific styles - no avatar, reduced padding */
+        .reviewers-only-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 33, 71, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+        }
+
+        .reviewers-only-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .reviewers-only-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 33, 71, 0.15);
+        }
+
+        .reviewer-avatar {
+            margin-bottom: 20px;
+        }
+
+        .reviewer-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            margin: 0 auto;
+            display: block;
+        }
+
+        .reviewer-info h3 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .reviewer-title {
+            color: var(--text-color);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .reviewer-institution {
+            color: var(--muted-color);
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .reviewer-expertise {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .expertise-tag {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+        }
+
+        /* CTA Section Styles */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 80px 0;
+        }
+
+        .cta-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .cta-description {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .cta-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .cta-feature {
+            text-align: center;
+        }
+
+        .cta-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+
+        .cta-text h4 {
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .cta-text p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        /* Reviewers Directory Styles */
+        .reviewers-directory-section {
+            display: none;
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .directory-controls {
+            margin: 30px 0 50px;
+            text-align: center;
+        }
+
+        .filter-btn {
+            margin: 0 10px 10px;
+            padding: 8px 20px;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .reviewers-list {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .reviewer-profile {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 33, 71, 0.1);
+            border-left: 5px solid var(--primary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .reviewer-profile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 33, 71, 0.15);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+        }
+
+        .profile-info h3 {
+            margin: 0 0 8px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-title {
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 5px;
+        }
+
+        .profile-institution {
+            color: var(--muted-color);
+            margin: 0 0 10px;
+            font-style: italic;
+        }
+
+        .profile-credentials {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .credential {
+            background: var(--light-bg);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .expertise-area h4 {
+            color: var(--primary-color);
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .expertise-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .expertise-tag {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .profile-bio {
+            margin: 20px 0;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .profile-achievements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .achievement {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+
+        .achievement i {
+            color: var(--accent-color);
+        }
+
+        .directory-footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 33, 71, 0.1);
+        }
+
+        .directory-footer p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .reviewers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+            }
+
+            .reviewer-card {
+                padding: 20px;
+            }
+
+            .reviewer-avatar img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-credentials {
+                justify-content: center;
+            }
+
+            .profile-achievements {
+                justify-content: center;
+            }
+
+            .filter-btn {
+                margin: 5px;
+                padding: 6px 15px;
+                font-size: 0.9rem;
+            }
+
+            .directory-controls {
+                margin: 20px 0 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .reviewers-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .reviewer-card {
+                padding: 15px;
+            }
+
+            .reviewer-info h3 {
+                font-size: 1.1rem;
+            }
+
+            .filter-btn {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+                text-align: center;
+            }
+
+            .cta-features {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <?php include 'navbar.php'; ?>
+
+    <!-- Expert on Board Section -->
+    <section class="section" id="expert-board">
+        <div class="container">
+            <div class="section-header text-center" data-aos="fade-up">
+                <h2 class="section-title">Editorial Board</h2>
+                <p class="section-subtitle">Editorial Board Members guiding our journal's vision and standards</p>
+            </div>
+            <div class="reviewers-grid">
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/sanjay saxena.jpeg" alt="Prof. Sanjay Saxena">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Prof. Sanjay Saxena</h3>
+                        <p class="reviewer-title">Professor, Department of Business Management</p>
+                        <p class="reviewer-institution">School of Management Sciences Varanasi, Uttar Pradesh</p>
+                        <!-- <p class="reviewer-institution">Khushipur, P.O-Bachhaon Varanasi-221011 Uttar Pradesh, India -->
+                        </p>
+                        <p class="reviewer-institution">sanjaysaxena@smsvaranasi.com</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Chief Editor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Babita Misra.jpeg" alt="Babita Misra">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Babita Misra</h3>
+                        <p class="reviewer-title">PHI Learning Private Limited, <br>Delhi</p>
+                        <p class="reviewer-institution">Rimjhim House, 111, Patparganj Industrial Estate, Delhi</p>
+                        <p class="reviewer-institution">babita.thecontinuum@phindia.com</p>
+                        <!-- <p class="reviewer-institution"><br></p> -->
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Managing Editor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Pallavi Ghosh.jpeg" alt="Pallavi Ghosh">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Pallavi Ghosh</h3>
+                        <p class="reviewer-title">PHI Learning Private Limited, <br>Delhi</p>
+                        <p class="reviewer-institution">Rimjhim House, 111, Patparganj Industrial Estate, Delhi</p>
+                        <p class="reviewer-institution">pallavi.thecontinuum@phindia.com</p>
+                        <!-- <p class="reviewer-institution"><br></p> -->
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Associate Editor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Roli Misra.webp" alt="Dr. Roli Misra">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Roli Misra</h3>
+                        <p class="reviewer-title">Professor, Department of Economics</p>
+                        <p class="reviewer-institution">University of Lucknow, Lucknow</p>
+                        <!-- <p class="reviewer-institution">Babuganj, Hasanganj, Lucknow Uttar Pradesh 226007, India</p> -->
+                        <p class="reviewer-institution">misra_roli@lkouniv.ac.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Manju.jpeg" alt="Dr. Manju Mehta">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Manju Mehta</h3>
+                        <p class="reviewer-title">Professor, Department of Chemistry</p>
+                        <p class="reviewer-institution">Maitreyi College, University of Delhi <br> Delhi</p>
+                        <!-- <p class="reviewer-institution">Bapudham Complex, ChanakyapuriNew Delhi - 110021</p> -->
+                        <p class="reviewer-institution">mmehta@maitreyi.du.ac.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Bhupinder.jpeg" alt="Dr. Bhupinder Mehta">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Bhupinder Mehta</h3>
+                        <p class="reviewer-title">Professor, Department of Chemistry</p>
+                        <p class="reviewer-institution">Swami Shraddhanand College, University of Delhi, Delhi</p>
+                        <!-- <p class="reviewer-institution">Alipur, Delhi - 110036</p> -->
+                        <p class="reviewer-institution">bhupindermehta@ss.du.ac.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Hridoy Jyoti Mahanta.jpg" alt="Dr. Hridoy Jyoti Mahanta">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Hridoy Jyoti Mahanta</h3>
+                        <p class="reviewer-title">Scientist</p>
+                        <p class="reviewer-institution">Advanced Computation and Data Sciences Division<br>CSIR - North
+                            East Institute of Science and Technology, Assam</p>
+                        <p class="reviewer-institution">hridoy@neist.res.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/jana.jpeg" alt="Dr. Ujjwal Jana">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Ujjwal Jana</h3>
+                        <p class="reviewer-title">Professor</p>
+                        <p class="reviewer-institution">Department of English, Faculty of Arts University of Delhi,
+                            Delhi</p>
+                        <!-- <p class="reviewer-institution">Chhatra Marg, University Enclave Delhi 110007</p> -->
+                        <p class="reviewer-institution">ujana@english.du.ac.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="700">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Punima Awathi.jpeg" alt="Dr. Purnima Awasthi">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Dr. Purnima Awasthi</h3>
+                        <p class="reviewer-title">Professor</p>
+                        <p class="reviewer-institution">Department of Psychology <br>Banaras Hindu University, Varanasi
+                            Uttar Pradesh</p>
+                        <!-- <p class="reviewer-institution"> <br>Varanasi,<br> Uttar Pradesh-221005</p> -->
+                        <p class="reviewer-institution">awasthi.psycho@bhu.ac.in</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Reviewers Grid Section -->
+    <section class="section" id="reviewers-list">
+        <div class="container">
+            <div class="section-header text-center" data-aos="fade-up">
+                <h2 class="section-title">Meet Our Peer Reviewers</h2>
+                <p class="section-subtitle">Distinguished academics and professionals who maintain the highest standards
+                    of scholarly review</p>
+            </div>
+
+            <div class="reviewers-grid">
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="reviewer-info">
+                        <h3>Prof. Dakshina Ranjan Kisku</h3>
+                        <p class="reviewer-title">Associate Professor</p>
+                        <p class="reviewer-institution">NIT Durgapur</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Computer Science</span>
+                            <span class="expertise-tag">Engineering</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="reviewer-info">
+                        <h3>Prof. Neha Tiwari</h3>
+                        <p class="reviewer-title">Associate Professor</p>
+                        <p class="reviewer-institution">IIS University, Jaipur</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Computer Science</span>
+                            <span class="expertise-tag">Engineering</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="reviewer-info">
+                        <h3>Prof. R.S. Soma Sundaram</h3>
+                        <p class="reviewer-title">Professor and Head</p>
+                        <p class="reviewer-institution">Coimbatore Institute of Technology, Coimbatore</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">MCA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="reviewer-info">
+                        <h3>Prof. Prabhjot Kaur</h3>
+                        <p class="reviewer-title">Associate Professor</p>
+                        <p class="reviewer-institution">DIT University, Dehradun</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">School of Computing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-info">
+                        <h3>Prof. Manju Arora</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">JIMS Institute of Management Studies, Rohini</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Information Technology</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-info">
+                        <h3>Prof. Rukmani</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">Sharda University, Greater Noida</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Political Science</span>
+                            <span class="expertise-tag">Law</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-info">
+                        <h3>Dr. Asheesh Kumar</h3>
+                        <p class="reviewer-title">Project Scientist</p>
+                        <p class="reviewer-institution">Advanced Computation and Data Sciences Division</p>
+                        <!-- <p class="reviewer-institution">CSIR-North East Institute of Science and Technology (CSIR-NEIST)</p>
+                        <p class="reviewer-institution">Jorhat, Assam - 785 006</p> -->
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Data Sciences</span>
+                            <span class="expertise-tag">Computation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-info">
+                        <h3>Prof. Rita Rani</h3>
+                        <p class="reviewer-title">Associate Professor</p>
+                        <p class="reviewer-institution">University of Delhi</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Economics</span>
+                            <span class="expertise-tag">Policy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="reviewer-info">
+                        <h3>Prof. Rajni Sofat (PHI Author)</h3>
+                        <p class="reviewer-title">Associate Professor(Finance)</p>
+                        <p class="reviewer-institution">GNIMT Ludhiana, Punjab</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Management</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-info">
+                        <h3>Prof. Meetu Luthra</h3>
+                        <p class="reviewer-title">Teacher in Charge</p>
+                        <p class="reviewer-institution">University of Delhi</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Physics</span>
+                            <span class="expertise-tag">Applied Sciences</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-info">
+                        <h3>Dr. Sudhir Kumar</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">Central University of Rajasthan</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Department of Public Policy Law and Governance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-info">
+                        <h3>Dr. Nidhi</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">GGDSD College</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Psychology</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-info">
+                        <h3>Prof. Divya Dhawan</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">Manav Rachna International Institute of Research and Studies
+                            Faridabad</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Psychology</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="reviewer-info">
+                        <h3>Dr. T. Deepamanjuri Devi</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">Manipur University</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Dept of Sociology</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="reviewer-info">
+                        <h3>Prof. Sharmistha Chatterjee</h3>
+                        <p class="reviewer-title">Professor and Head</p>
+                        <p class="reviewer-institution">Aliah University Kolkata</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">English</span>
+                            <span class="expertise-tag">Humanities</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="reviewer-info">
+                        <h3>Dr. Appurva Jain</h3>
+                        <p class="reviewer-title">Assistant Professor</p>
+                        <p class="reviewer-institution">K.R. Mangalam University</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Engineering Design</span>
+                            <span class="expertise-tag">Automation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comprehensive Reviewers Directory -->
+    <section class="reviewers-directory-section" id="reviewers-directory">
+        <div class="container">
+            <div class="section-header text-center" data-aos="fade-up">
+                <h2 class="section-title">Complete Reviewers Directory</h2>
+                <p class="section-subtitle">Comprehensive profiles of our distinguished peer review board members</p>
+                <div class="directory-controls">
+                    <button class="btn btn-outline filter-btn active" data-filter="all">All Disciplines</button>
+                    <button class="btn btn-outline filter-btn" data-filter="science">Science & Technology</button>
+                    <button class="btn btn-outline filter-btn" data-filter="humanities">Humanities & Social
+                        Sciences</button>
+                    <button class="btn btn-outline filter-btn" data-filter="engineering">Engineering</button>
+                </div>
+            </div>
+
+            <div class="reviewers-list">
+                <!-- Computer Science & Engineering Reviewers -->
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="100">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Dakshina Ranjan Kisku">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Dakshina Ranjan Kisku</h3>
+                            <p class="profile-title">Associate Professor</p>
+                            <p class="profile-institution">NIT Durgapur</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Computer Science and Engineering</span>
+                                <span class="credential">drkisku.cse@nitdpg.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Computer Science</span>
+                                <span class="expertise-tag">Engineering</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Kisku is an accomplished researcher in Computer Science and Engineering at NIT
+                                Durgapur, contributing significantly to the field through research and academic
+                                excellence.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>NIT Durgapur</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>drkisku.cse@nitdpg.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="200">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Neha Tiwari">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Neha Tiwari</h3>
+                            <p class="profile-title">Associate Professor</p>
+                            <p class="profile-institution">IIS University Jaipur</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Computer Science and Engineering</span>
+                                <span class="credential">neha.tiwari@iisuniv.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Computer Science</span>
+                                <span class="expertise-tag">Engineering</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Tiwari brings extensive expertise in Computer Science and Engineering from IIS
+                                University Jaipur, with a focus on innovative research and academic development.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>IIS University Jaipur</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>neha.tiwari@iisuniv.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="300">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. R.S.Somasundaram">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. R.S.Somasundaram</h3>
+                            <p class="profile-title">Professor and Head</p>
+                            <p class="profile-institution">Coimbatore Institute of Technology</p>
+                            <div class="profile-credentials">
+                                <span class="credential">MCA</span>
+                                <span class="credential">hodmca@cit.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">MCA</span>
+                                <span class="expertise-tag">Computer Applications</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Somasundaram serves as Professor and Head of MCA at Coimbatore Institute of
+                                Technology, leading academic excellence in computer applications and research.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Coimbatore Institute of Technology</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>hodmca@cit.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="400">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Prabhjot Kaur">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Prabhjot Kaur</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">DIT University Dehradun</p>
+                            <div class="profile-credentials">
+                                <span class="credential">School of Computing</span>
+                                <span class="credential">prabhjot.kaur@dituniversity.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Computing</span>
+                                <span class="expertise-tag">Computer Science</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Kaur is a dedicated researcher in the School of Computing at DIT University
+                                Dehradun, focusing on advanced computing technologies and methodologies.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>DIT University Dehradun</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>prabhjot.kaur@dituniversity.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="500">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Manju Arora">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Manju Arora</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">JIMS Institute of Management Studies, Rohini</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Information Technology</span>
+                                <span class="credential">manju.arora@jims.india.org</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Information Technology</span>
+                                <span class="expertise-tag">Management</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Arora specializes in Information Technology at JIMS Institute, combining technical
+                                expertise with management principles for comprehensive academic research.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>JIMS Institute, Rohini</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>manju.arora@jims.india.org</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="600">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Rukmani">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Rukmani</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">Sharda University, Greater Noida</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Political Science, School of Law</span>
+                                <span class="credential">rukmani@sharda.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Political Science</span>
+                                <span class="expertise-tag">Law</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Rukmani brings expertise in Political Science and Law from Sharda University,
+                                contributing to interdisciplinary research in governance and legal studies.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Sharda University</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>rukmani@sharda.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="700">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Rita Rani">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Rita Rani</h3>
+                            <p class="profile-title">Associate Professor</p>
+                            <p class="profile-institution">Daulat Ram College, University of Delhi</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Economics</span>
+                                <span class="credential">ritarani@dr.du.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Economics</span>
+                                <span class="expertise-tag">Economic Policy</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Rani is an esteemed economist at University of Delhi, specializing in economic
+                                research and policy analysis with extensive academic contributions.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>University of Delhi</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>ritarani@dr.du.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="800">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Rajni Sofat">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Rajni Sofat</h3>
+                            <p class="profile-title">Associate Professor (Finance)</p>
+                            <p class="profile-institution">GNIMT Ludhiana, Punjab</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Management - Finance</span>
+                                <span class="credential">PHI Author</span>
+                                <span class="credential">sofatrajni@yahoo.com</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Finance</span>
+                                <span class="expertise-tag">Management</span>
+                                <span class="expertise-tag">PHI Publications</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Sofat is a distinguished finance expert and PHI author, bringing extensive
+                                experience in financial management and academic publishing to the review board.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-star"></i>
+                                <span>PHI Author</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>GNIMT Ludhiana</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>sofatrajni@yahoo.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="900">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Meetu Luthra">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Meetu Luthra</h3>
+                            <p class="profile-title">Teacher in Charge</p>
+                            <p class="profile-institution">Bhaskaracharya College of Applied Sciences, University of
+                                Delhi</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Physics</span>
+                                <span class="credential">meetu.luthra@bcas.du.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Physics</span>
+                                <span class="expertise-tag">Applied Sciences</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Luthra leads physics education and research at Bhaskaracharya College, contributing
+                                to applied sciences with innovative teaching and research methodologies.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>University of Delhi</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>meetu.luthra@bcas.du.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="1000">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Sudhir Kumar Garhwal">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Dr. Sudhir Kumar Garhwal</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">Central University of Rajasthan, Kishangarh, Ajmer</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Public Policy, Law & Governance</span>
+                                <span class="credential">skgarhwal@curaj.ac.in</span>
+                                <span class="credential">9999839929</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Public Policy</span>
+                                <span class="expertise-tag">Law</span>
+                                <span class="expertise-tag">Governance</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Dr. Garhwal specializes in public policy and governance studies, bringing expertise in
+                                law and policy analysis from Central University of Rajasthan.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Central University of Rajasthan</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>skgarhwal@curaj.ac.in</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-phone"></i>
+                                <span>9999839929</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="1100">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Nidhi Chadha">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Nidhi</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">GGDSD College, Sector 32-C Chandigarh</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Psychology</span>
+                                <span class="credential">nidhi.chadha@ggdsd.ac.in</span>
+                                <span class="credential">8872329503</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Psychology</span>
+                                <span class="expertise-tag">Behavioral Studies</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Chadha is a dedicated psychology researcher at GGDSD College, focusing on
+                                behavioral studies and psychological research methodologies.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>GGDSD College, Chandigarh</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>nidhi.chadha@ggdsd.ac.in</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-phone"></i>
+                                <span>8872329503</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="1200">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Divya Dhawan">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Divya Dhawan</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">Manav Rachna International Institute of Research and Studies,
+                                Faridabad</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Psychology</span>
+                                <span class="credential">divyadhawan.sbss@mriu.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Psychology</span>
+                                <span class="expertise-tag">Research Methods</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Dhawan contributes to psychology research at Manav Rachna International Institute,
+                                specializing in contemporary psychological research and applications.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Manav Rachna Institute, Faridabad</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>divyadhawan.sbss@mriu.edu.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="1300">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Dr. T. Deepamanjuri Devi">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Dr. T. Deepamanjuri Devi</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">Manipur University</p>
+                            <div class="profile-credentials">
+                                <span class="credential">Department of Sociology</span>
+                                <span class="credential">rita_takhel@yahoo.com</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Sociology</span>
+                                <span class="expertise-tag">Social Research</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Dr. Devi brings sociological expertise from Manipur University, focusing on social
+                                research and cultural studies in the northeastern region of India.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Manipur University</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>rita_takhel@yahoo.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="1400">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Prof. Sharmistha Chatterjee">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Prof. Sharmistha Chatterjee</h3>
+                            <p class="profile-title">Professor and Head</p>
+                            <p class="profile-institution">Aliah University Kolkata</p>
+                            <div class="profile-credentials">
+                                <span class="credential">English, Humanities and Languages</span>
+                                <span class="credential">Contributor and Reviewer</span>
+                                <span class="credential">sharmisthachatterjee.eng@aliah.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">English Literature</span>
+                                <span class="expertise-tag">Humanities</span>
+                                <span class="expertise-tag">Languages</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Prof. Chatterjee serves as both contributor and reviewer, leading English and Humanities
+                                research at Aliah University with expertise in literature and linguistic studies.</p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-star"></i>
+                                <span>Contributor & Reviewer</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>Aliah University Kolkata</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>sharmisthachatterjee.eng@aliah.ac.in</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviewer-profile engineering" data-aos="fade-up" data-aos-delay="1500">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Appurva Jain">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Dr. Appurva Jain</h3>
+                            <p class="profile-title">Assistant Professor</p>
+                            <p class="profile-institution">K.R. Mangalam University, Gurugram</p>
+                            <div class="profile-credentials">
+                                <span class="credential">School of Engineering Design Automation</span>
+                                <span class="credential">er.appurvamech@gmail.com</span>
+                                <span class="credential">7665656504</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="expertise-area">
+                            <h4>Research Areas</h4>
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Engineering Design</span>
+                                <span class="expertise-tag">Automation</span>
+                                <span class="expertise-tag">Mechanical Engineering</span>
+                            </div>
+                        </div>
+                        <div class="profile-bio">
+                            <p>Dr. Jain specializes in engineering design automation at K.R. Mangalam University,
+                                focusing on innovative mechanical engineering solutions and automated design processes.
+                            </p>
+                        </div>
+                        <div class="profile-achievements">
+                            <div class="achievement">
+                                <i class="fas fa-university"></i>
+                                <span>K.R. Mangalam University</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-envelope"></i>
+                                <span>er.appurvamech@gmail.com</span>
+                            </div>
+                            <div class="achievement">
+                                <i class="fas fa-phone"></i>
+                                <span>7665656504</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="directory-footer" data-aos="fade-up">
+                <p>Interested in joining our prestigious panel of reviewers?</p>
+                <a href="submit.html" class="btn btn-primary btn-large">
+                    <i class="fas fa-user-plus"></i>
+                    Apply to Become a Reviewer
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Join Our Team Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content" data-aos="fade-up">
+                <h2 class="cta-title">Join Our Distinguished Panel</h2>
+                <p class="cta-description">
+                    Are you an expert in your field? Join our peer review board and contribute to advancing scholarly
+                    research across disciplines.
+                </p>
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <div class="cta-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="cta-text">
+                            <h4>Recognition</h4>
+                            <p>Get acknowledged for your expertise</p>
+                        </div>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="cta-text">
+                            <h4>Networking</h4>
+                            <p>Connect with leading academics</p>
+                        </div>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="cta-text">
+                            <h4>Impact</h4>
+                            <p>Shape the future of research</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logos">
+                        <img src="images/PHI_White.png" alt="PHI Logo" class="footer-logo">
+                        <img src="images/continuum-logo-white.png" alt="The Continuum Logo" class="footer-logo">
+                    </div>
+                    <h3>The Continuum</h3>
+                    <p>An interdisciplinary academic journal fostering rigorous research and enabling dialogue between
+                        emerging scholars across all subjects.</p>
+    
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/PHILEARNING" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/philearningdelhi/" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/86816950/" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@philearning" target="_blank">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+    
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Journal</h4>
+                        <ul>
+                            <!-- <li><a href="intro.html">Home</a></li> -->
+                            <li><a href="index.html#about">About Us</a></li>
+                            <li><a href="reviewers.html">Our Reviewers</a></li>
+                            <li><a href="all-issues.php">All Issues</a></li>
+                        </ul>
+                    </div>
+    
+                    <div class="footer-column">
+                        <h4>For Authors</h4>
+                        <ul>
+                            <li><a href="#contact">Submit Article</a></li>
+                            <li><a href="#">Author Guidelines</a></li>
+                        </ul>
+                    </div>
+    
+                    <div class="footer-column">
+                        <h4>Access</h4>
+                        <ul>
+                            <li><a href="all-issues.php">Free Preview</a></li>
+                            <li><a href="all-issues.php">Full Access</a></li>
+                            <li><a href="all-issues.php">Subscription</a></li>
+                            <!-- <li><a href="all-issues.php">Open Access</a></li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 PHI Learning Pvt Ltd. All rights reserved.</p>
+                </div>
+                <!-- <div class="footer-legal">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Editorial Policy</a>
+                    </div> -->
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="intro-script.js"></script>
+    <script>
+        // Reviewers Directory Filtering
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const reviewerProfiles = document.querySelectorAll('.reviewer-profile');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const filter = this.getAttribute('data-filter');
+
+                    // Update active button
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter profiles
+                    reviewerProfiles.forEach(profile => {
+                        if (filter === 'all' || profile.classList.contains(filter)) {
+                            profile.style.display = 'block';
+                            profile.style.animation = 'fadeInUp 0.5s ease-in-out';
+                        } else {
+                            profile.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Handle navigation to directory section
+            const directoryLink = document.querySelector('a[href="#reviewers-directory"]');
+            if (directoryLink) {
+                directoryLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetSection = document.getElementById('reviewers-directory');
+                    if (targetSection) {
+                        // Hide main sections
+                        document.querySelector('.hero-section').style.display = 'none';
+                        document.querySelector('#reviewers-list').style.display = 'none';
+                        document.querySelector('.cta-section').style.display = 'none';
+
+                        // Show directory section
+                        targetSection.style.display = 'block';
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+
+                        // Update page title
+                        document.title = 'Reviewers Directory | The Continuum - PHI Learning';
+                    }
+                });
+            }
+
+            // Handle back to main reviewers page
+            const mainPanelLink = document.querySelector('a[href="reviewers.html"]');
+            if (mainPanelLink && mainPanelLink.textContent.includes('Our Panel')) {
+                mainPanelLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // Show main sections
+                    document.querySelector('.hero-section').style.display = 'block';
+                    document.querySelector('#reviewers-list').style.display = 'block';
+                    document.querySelector('.cta-section').style.display = 'block';
+
+                    // Hide directory section
+                    document.getElementById('reviewers-directory').style.display = 'none';
+
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    // Update page title
+                    document.title = 'Our Reviewers | The Continuum - PHI Learning';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
