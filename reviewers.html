@@ -64,6 +64,7 @@
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
             margin-top: 40px;
+            align-items: stretch;
         }
 
         .reviewer-card {
@@ -104,6 +105,9 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
         }
 
         .editorial-card::before {
@@ -132,7 +136,9 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            min-height: 180px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
         }
 
         .reviewers-only-card::before {
@@ -164,23 +170,40 @@
             display: block;
         }
 
+        .reviewer-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
         .reviewer-info h3 {
             color: var(--primary-color);
             font-size: 1.3rem;
             margin-bottom: 8px;
             font-weight: 600;
+            min-height: 2.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .reviewer-title {
             color: var(--text-color);
             font-weight: 500;
             margin-bottom: 5px;
+            min-height: 1.5rem;
         }
 
         .reviewer-institution {
             color: var(--muted-color);
             font-style: italic;
             margin-bottom: 15px;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .reviewer-expertise {
@@ -188,6 +211,9 @@
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
+            margin-top: auto;
+            min-height: 3rem;
+            align-items: center;
         }
 
         .expertise-tag {
@@ -563,16 +589,16 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <img src="images/PHI_White.png" alt="PHI Logo" class="nav-logo-phi">
-                <img src="images/continuum-logo-white.png" alt="The Continuum Logo" class="nav-logo-continuum">
+                <img src="/images/PHI_White.png" alt="PHI Logo" class="nav-logo-phi">
+                <img src="/images/continuum-logo-white.png" alt="The Continuum Logo" class="nav-logo-continuum">
             </div>
             <div class="nav-menu">
-                <a href="/" class="nav-link">Home</a>
-                <a href="index.html#about" class="nav-link">About</a>
-                <a href="index.html#mission" class="nav-link">Mission</a>
-                <a href="reviewers.html" class="nav-link active">Editorial Board</a>
-                <a href="index.html#issues" class="nav-link">Issues</a>
-                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="/index.php#home" class="nav-link">Home</a>
+                <a href="/index.php#about" class="nav-link">About</a>
+                <a href="/index.php#mission" class="nav-link">Mission</a>
+                <a href="/reviewers.html" class="nav-link active">Editorial Board</a>
+                <a href="/volumes.php" class="nav-link">Volumes</a>
+                <a href="/index.php#contact" class="nav-link">Contact</a>
             </div>
             <div class="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
@@ -587,13 +613,41 @@
                 <h2 class="section-title">Editorial Board</h2>
                 <p class="section-subtitle">Editorial Board Members guiding our journal's vision and standards</p>
             </div>
+
+            <!-- Editorial Note -->
+            <div class="editorial-note" data-aos="fade-up"
+                style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 50px; border-left: 4px solid var(--primary-color);">
+                <h3 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.5rem;">Editorial Note</h3>
+                <div style="color: var(--text-color); line-height: 1.8;">
+                    <p style="margin-bottom: 15px;">
+                        The Continuum: An Academic Journal is an annual, peer-reviewed scholarly journal. The First
+                        Volume is dedicated to advancing critical inquiry and interdisciplinary research across the
+                        humanities, social sciences, and allied disciplines. The journal provides a platform for
+                        original research articles, review essays, and critical perspectives that engage with
+                        contemporary academic and societal concerns.
+                    </p>
+                    <p style="margin-bottom: 15px;">
+                        Committed to academic rigour, ethical publishing practices, and intellectual diversity, the
+                        Continuum: An Academic Journal encourages contributions from established scholars and doctoral
+                        students. All submissions undergo a rigorous peer-review process to ensure quality and
+                        relevance.
+                    </p>
+                    <p style="margin: 0;">
+                        The journal welcomes contributions from a wide range of fields, including—but not limited
+                        to—humanities, social sciences, computer science, engineering, management studies, agricultural
+                        sciences, and medical and health sciences, fostering dialogue across disciplines and
+                        contributing meaningfully to national and international scholarly conversations.
+                    </p>
+                </div>
+            </div>
+
             <div class="reviewers-grid">
                 <div class="editorial-card" data-aos="fade-up" data-aos-delay="500">
                     <div class="reviewer-avatar">
-                        <img src="images/experts/sanjay saxena.jpeg" alt="Prof. Sanjay Saxena">
+                        <img src="images/experts/sanjay saxena.jpeg" alt="Dr. Sanjay Saxena">
                     </div>
                     <div class="reviewer-info">
-                        <h3>Prof. Sanjay Saxena</h3>
+                        <h3>Dr. Sanjay Saxena</h3>
                         <p class="reviewer-title">Professor, Department of Business Management</p>
                         <p class="reviewer-institution">School of Management Sciences Varanasi, Uttar Pradesh</p>
                         <!-- <p class="reviewer-institution">Khushipur, P.O-Bachhaon Varanasi-221011 Uttar Pradesh, India -->
@@ -690,7 +744,7 @@
                         <p class="reviewer-title">Scientist</p>
                         <p class="reviewer-institution">Advanced Computation and Data Sciences Division<br>CSIR - North
                             East Institute of Science and Technology, Assam</p>
-                        <p class="reviewer-institution">hridoy@neist.res.in</p>
+                        <p class="reviewer-institution">hridoy.neist@csir.res.in</p>
                         <div class="reviewer-expertise">
                             <span class="expertise-tag">Editor</span>
                         </div>
@@ -730,6 +784,51 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="800">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/George Avirapattu.jpg" alt="George Avirappattu">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>George Avirappattu, Ph.D.</h3>
+                        <p class="reviewer-title">Professor, Department of Mathematical Sciences</p>
+                        <p class="reviewer-institution">Kean University<br>1000 Morris Ave, Union, NJ 07083</p>
+                        <p class="reviewer-institution">gavirapp@kean.edu</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="900">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Shouichiro.bmp" alt="Shouichiro Iio">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Shouichiro Iio, Ph.D.</h3>
+                        <p class="reviewer-title">Associate Professor, Faculty of Engineering</p>
+                        <p class="reviewer-institution">Shinshu University<br>4-17-1 Wakasato, Nagano 380-8553, JAPAN</p>
+                        <p class="reviewer-institution">shouiio@shinshu-u.ac.jp</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editorial-card" data-aos="fade-up" data-aos-delay="1000">
+                    <div class="reviewer-avatar">
+                        <img src="images/experts/Anindya nag.jpg" alt="Anindya Nag">
+                    </div>
+                    <div class="reviewer-info">
+                        <h3>Anindya Nag, Ph.D.</h3>
+                        <p class="reviewer-title">Junior Professor, Faculty of Electrical and Computer Engineering</p>
+                        <p class="reviewer-institution">Dresden University of Technology<br>Dresden 01062, Germany</p>
+                        <p class="reviewer-institution">anindya.nag@tu-dresden.de</p>
+                        <div class="reviewer-expertise">
+                            <span class="expertise-tag">Editor</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -748,7 +847,7 @@
             <div class="reviewers-grid">
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="reviewer-info">
-                        <h3>Prof. Dakshina Ranjan Kisku</h3>
+                        <h3>Dr. Dakshina Ranjan Kisku</h3>
                         <p class="reviewer-title">Associate Professor</p>
                         <p class="reviewer-institution">NIT Durgapur</p>
                         <div class="reviewer-expertise">
@@ -760,7 +859,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="reviewer-info">
-                        <h3>Prof. Neha Tiwari</h3>
+                        <h3>Dr. Neha Tiwari</h3>
                         <p class="reviewer-title">Associate Professor</p>
                         <p class="reviewer-institution">IIS University, Jaipur</p>
                         <div class="reviewer-expertise">
@@ -772,7 +871,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="reviewer-info">
-                        <h3>Prof. R.S. Soma Sundaram</h3>
+                        <h3>Dr. R.S. Soma Sundaram</h3>
                         <p class="reviewer-title">Professor and Head</p>
                         <p class="reviewer-institution">Coimbatore Institute of Technology, Coimbatore</p>
                         <div class="reviewer-expertise">
@@ -783,7 +882,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="reviewer-info">
-                        <h3>Prof. Prabhjot Kaur</h3>
+                        <h3>Dr. Prabhjot Kaur</h3>
                         <p class="reviewer-title">Associate Professor</p>
                         <p class="reviewer-institution">DIT University, Dehradun</p>
                         <div class="reviewer-expertise">
@@ -794,7 +893,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="reviewer-info">
-                        <h3>Prof. Manju Arora</h3>
+                        <h3>Dr. Manju Arora</h3>
                         <p class="reviewer-title">Assistant Professor</p>
                         <p class="reviewer-institution">JIMS Institute of Management Studies, Rohini</p>
                         <div class="reviewer-expertise">
@@ -805,7 +904,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="reviewer-info">
-                        <h3>Prof. Rukmani</h3>
+                        <h3>Dr. Rukmani</h3>
                         <p class="reviewer-title">Assistant Professor</p>
                         <p class="reviewer-institution">Sharda University, Greater Noida</p>
                         <div class="reviewer-expertise">
@@ -819,8 +918,7 @@
                         <h3>Dr. Asheesh Kumar</h3>
                         <p class="reviewer-title">Project Scientist</p>
                         <p class="reviewer-institution">Advanced Computation and Data Sciences Division</p>
-                        <!-- <p class="reviewer-institution">CSIR-North East Institute of Science and Technology (CSIR-NEIST)</p>
-                        <p class="reviewer-institution">Jorhat, Assam - 785 006</p> -->
+                        <p class="reviewer-institution">CSIR - North East Institute of Science and Technology, Assam</p>
                         <div class="reviewer-expertise">
                             <span class="expertise-tag">Data Sciences</span>
                             <span class="expertise-tag">Computation</span>
@@ -830,7 +928,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="reviewer-info">
-                        <h3>Prof. Rita Rani</h3>
+                        <h3>Dr. Rita Rani</h3>
                         <p class="reviewer-title">Associate Professor</p>
                         <p class="reviewer-institution">University of Delhi</p>
                         <div class="reviewer-expertise">
@@ -842,7 +940,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="reviewer-info">
-                        <h3>Prof. Rajni Sofat (PHI Author)</h3>
+                        <h3>Dr. Rajni Sofat (PHI Author)</h3>
                         <p class="reviewer-title">Associate Professor(Finance)</p>
                         <p class="reviewer-institution">GNIMT Ludhiana, Punjab</p>
                         <div class="reviewer-expertise">
@@ -853,7 +951,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
                     <div class="reviewer-info">
-                        <h3>Prof. Meetu Luthra</h3>
+                        <h3>Dr. Meetu Luthra</h3>
                         <p class="reviewer-title">Teacher in Charge</p>
                         <p class="reviewer-institution">University of Delhi</p>
                         <div class="reviewer-expertise">
@@ -887,7 +985,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="500">
                     <div class="reviewer-info">
-                        <h3>Prof. Divya Dhawan</h3>
+                        <h3>Dr. Divya Dhawan</h3>
                         <p class="reviewer-title">Assistant Professor</p>
                         <p class="reviewer-institution">Manav Rachna International Institute of Research and Studies
                             Faridabad</p>
@@ -910,7 +1008,7 @@
 
                 <div class="reviewers-only-card" data-aos="fade-up" data-aos-delay="400">
                     <div class="reviewer-info">
-                        <h3>Prof. Sharmistha Chatterjee</h3>
+                        <h3>Dr. Sharmistha Chatterjee</h3>
                         <p class="reviewer-title">Professor and Head</p>
                         <p class="reviewer-institution">Aliah University Kolkata</p>
                         <div class="reviewer-expertise">
@@ -957,10 +1055,10 @@
                 <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="100">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Dakshina Ranjan Kisku">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Dakshina Ranjan Kisku">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Dakshina Ranjan Kisku</h3>
+                            <h3>Dr. Dakshina Ranjan Kisku</h3>
                             <p class="profile-title">Associate Professor</p>
                             <p class="profile-institution">NIT Durgapur</p>
                             <div class="profile-credentials">
@@ -998,10 +1096,10 @@
                 <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="200">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Neha Tiwari">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Neha Tiwari">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Neha Tiwari</h3>
+                            <h3>Dr. Neha Tiwari</h3>
                             <p class="profile-title">Associate Professor</p>
                             <p class="profile-institution">IIS University Jaipur</p>
                             <div class="profile-credentials">
@@ -1038,10 +1136,10 @@
                 <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="300">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. R.S.Somasundaram">
+                            <img src="https://via.placeholder.com/80" alt="Dr. R.S.Somasundaram">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. R.S.Somasundaram</h3>
+                            <h3>Dr. R.S.Somasundaram</h3>
                             <p class="profile-title">Professor and Head</p>
                             <p class="profile-institution">Coimbatore Institute of Technology</p>
                             <div class="profile-credentials">
@@ -1078,10 +1176,10 @@
                 <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="400">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Prabhjot Kaur">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Prabhjot Kaur">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Prabhjot Kaur</h3>
+                            <h3>Dr. Prabhjot Kaur</h3>
                             <p class="profile-title">Assistant Professor</p>
                             <p class="profile-institution">DIT University Dehradun</p>
                             <div class="profile-credentials">
@@ -1118,10 +1216,10 @@
                 <div class="reviewer-profile science" data-aos="fade-up" data-aos-delay="500">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Manju Arora">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Manju Arora">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Manju Arora</h3>
+                            <h3>Dr. Manju Arora</h3>
                             <p class="profile-title">Assistant Professor</p>
                             <p class="profile-institution">JIMS Institute of Management Studies, Rohini</p>
                             <div class="profile-credentials">
@@ -1158,10 +1256,10 @@
                 <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="600">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Rukmani">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Rukmani">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Rukmani</h3>
+                            <h3>Dr. Rukmani</h3>
                             <p class="profile-title">Assistant Professor</p>
                             <p class="profile-institution">Sharda University, Greater Noida</p>
                             <div class="profile-credentials">
@@ -1198,10 +1296,10 @@
                 <div class="reviewer-profile humanities" data-aos="fade-up" data-aos-delay="700">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="https://via.placeholder.com/80" alt="Prof. Rita Rani">
+                            <img src="https://via.placeholder.com/80" alt="Dr. Rita Rani">
                         </div>
                         <div class="profile-info">
-                            <h3>Prof. Rita Rani</h3>
+                            <h3>Dr. Rita Rani</h3>
                             <p class="profile-title">Associate Professor</p>
                             <p class="profile-institution">Daulat Ram College, University of Delhi</p>
                             <div class="profile-credentials">
@@ -1646,13 +1744,14 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="footer-logos">
-                        <img src="images/PHI_White.png" alt="PHI Logo" class="footer-logo">
-                        <img src="images/continuum-logo-white.png" alt="The Continuum Logo" class="footer-logo">
+                        <img src="/images/PHI_White.png" alt="PHI Logo" class="footer-logo">
+                        <img src="/images/continuum-logo-white.png" alt="The Continuum Logo" class="footer-logo">
                     </div>
-                    <h3>The Continuum</h3>
+                    <h3>The Continuum<br>
+                    <i>An Academic Journal</i></h3>
                     <p>An interdisciplinary academic journal fostering rigorous research and enabling dialogue between
                         emerging scholars across all subjects.</p>
-    
+
                     <div class="social-links">
                         <a href="https://www.facebook.com/PHILEARNING" target="_blank">
                             <i class="fab fa-facebook-f"></i>
@@ -1668,38 +1767,38 @@
                         </a>
                     </div>
                 </div>
-    
+
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4>Journal</h4>
                         <ul>
                             <!-- <li><a href="intro.html">Home</a></li> -->
-                            <li><a href="index.html#about">About Us</a></li>
-                            <li><a href="reviewers.html">Our Reviewers</a></li>
-                            <li><a href="all-issues.php">All Issues</a></li>
+                            <li><a href="/index.php#about">About Us</a></li>
+                            <li><a href="/reviewers.html">Our Reviewers</a></li>
+                            <li><a href="/volumes.php">All Volumes</a></li>
                         </ul>
                     </div>
-    
+
                     <div class="footer-column">
                         <h4>For Authors</h4>
                         <ul>
-                            <li><a href="#contact">Submit Article</a></li>
-                            <li><a href="#">Author Guidelines</a></li>
+                            <li><a href="/index.php#contact">Submit Article</a></li>
+                            <li><a href="/Author_Guidelines.pdf" target="_blank">Author Guidelines</a></li>
                         </ul>
                     </div>
-    
+
                     <div class="footer-column">
                         <h4>Access</h4>
                         <ul>
-                            <li><a href="all-issues.php">Free Preview</a></li>
-                            <li><a href="all-issues.php">Full Access</a></li>
-                            <li><a href="all-issues.php">Subscription</a></li>
+                            <li><a href="/volumes.php">Free Preview</a></li>
+                            <li><a href="/volumes.php">Full Access</a></li>
+                            <li><a href="/volumes.php">Subscription</a></li>
                             <!-- <li><a href="all-issues.php">Open Access</a></li> -->
                         </ul>
                     </div>
                 </div>
             </div>
-    
+
             <div class="footer-bottom">
                 <div class="footer-copyright">
                     <p>&copy; 2025 PHI Learning Pvt Ltd. All rights reserved.</p>
@@ -1759,7 +1858,7 @@
                         targetSection.scrollIntoView({ behavior: 'smooth' });
 
                         // Update page title
-                        document.title = 'Reviewers Directory | The Continuum - PHI Learning';
+                        document.title = 'Reviewers Directory | The Continuum: An Academic Journal - PHI Learning';
                     }
                 });
             }
@@ -1781,7 +1880,7 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
 
                     // Update page title
-                    document.title = 'Our Reviewers | The Continuum - PHI Learning';
+                    document.title = 'Our Reviewers | The Continuum: An Academic Journal - PHI Learning';
                 });
             }
         });
